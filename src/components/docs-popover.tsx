@@ -272,6 +272,22 @@ const fieldTypes = [
 	},
 	{
 		type: "checkbox",
+		description: "A single checkbox for say agree terms & conditions",
+		properties: [
+			"id: string (required)",
+			"type: string (required)",
+			"label: string (required)",
+			"required: boolean (optional)",
+		],
+		example: `{
+  "id": "agree",
+  "type": "checkbox",
+  "label": "Do you agree?",
+  "required": true,
+}`,
+	},
+	{
+		type: "checkbox-group",
 		description: "A group of checkboxes for selecting multiple options.",
 		properties: [
 			"id: string (required)",
@@ -282,7 +298,7 @@ const fieldTypes = [
 		],
 		example: `{
   "id": "interests",
-  "type": "checkbox",
+  "type": "checkbox-group",
   "label": "Interests",
   "required": false,
   "options": [

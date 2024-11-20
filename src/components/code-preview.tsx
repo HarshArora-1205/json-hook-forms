@@ -130,7 +130,16 @@ function generateHTMLCode(schema: Schema): string {
             ${field.label}
           </label>
         `;
-
+      case "checkbox-group":
+        return `${field.options
+          ?.map(
+            (option) => `
+        <label>
+          <input type="checkbox" {...form.register("${field.id}")} value="${option.value}" />
+          ${option.label}
+        </label>`
+          )
+          .join("\n        ")}`;
 			case "textarea":
 				return `<textarea {...form.register("${field.id}")} ${
 					"placeholder" in field && field.placeholder
@@ -366,7 +375,39 @@ function generateShadcnCode(schema: Schema): string {
             </FormItem>
           )}
         />`;
-
+      case "checkbox-group":
+        return `<FormField
+          control={form.control}
+          name="${field.id}"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>${field.label}${field.required ? " *" : ""}</FormLabel>
+              <div className="flex space-x-2">
+                ${field.options
+                  ?.map(
+                    (option) => `
+                <FormControl>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      checked={field.value?.includes(option.value)}
+                      onCheckedChange={(checked) => {
+                        const newValue = checked
+                          ? [...(field.value || []), option.value]
+                          : (field.value || []).filter(v => v !== option.value);
+                        field.onChange(newValue);
+                      }}
+                      id="${field.id}-${option.value}"
+                    />
+                    <Label htmlFor="${field.id}-${option.value}">${option.label}</Label>
+                  </div>
+                </FormControl>`
+                  )
+                  .join("\n                ")}
+              </div>
+              <FormMessage />
+            </FormItem>
+          )}
+        />`;
 			case "textarea":
 				return `<FormField
           control={form.control}

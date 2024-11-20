@@ -40,6 +40,7 @@ export default function JSONEditor({ value, onChange }: JSONEditorProps) {
 											type: "string",
 											enum: [
 												"checkbox",
+												"checkbox-group",
 												"email",
 												"number",
 												"range",

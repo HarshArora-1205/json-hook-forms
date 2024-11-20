@@ -67,8 +67,9 @@ export default function FormPreview({ schema }: FormPreviewProps) {
 
 function getDefaultValue(field: Field) {
 	switch (field.type) {
-		case "checkbox":
+		case "checkbox-group":
 			return [];
+		case "checkbox":
 		case "switch":
 			return false;
 		case "number":

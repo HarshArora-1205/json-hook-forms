@@ -1,4 +1,4 @@
-export type FieldType = 'checkbox' | 'email' | 'number' | 'range' | 'tel' | 'select' | 'radio' | 'text' | 'textarea' | 'switch' | 'password';
+export type FieldType = 'checkbox' | 'checkbox-group' | 'email' | 'number' | 'range' | 'tel' | 'select' | 'radio' | 'text' | 'textarea' | 'switch' | 'password';
 
 export interface BaseField {
   id: string;
@@ -71,6 +71,11 @@ export interface CheckboxField extends BaseField {
   type: 'checkbox';
 }
 
+export interface CheckboxGroupField extends BaseField {
+  type: 'checkbox-group';
+  options: Array<{ value: string; label: string }>;
+}
+
 export interface TextareaField extends BaseField {
   type: 'textarea';
   placeholder?: string;
@@ -80,7 +85,7 @@ export interface SwitchField extends BaseField {
   type: 'switch';
 }
 
-export type Field = TextField | EmailField | PasswordField | NumberField | RangeField | TelField | SelectField | RadioField | CheckboxField | TextareaField | SwitchField;
+export type Field = TextField | CheckboxGroupField | EmailField | PasswordField | NumberField | RangeField | TelField | SelectField | RadioField | CheckboxField | TextareaField | SwitchField;
 
 export interface Schema {
   formTitle: string;
