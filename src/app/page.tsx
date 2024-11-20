@@ -98,7 +98,7 @@ export default function Home() {
 						)}
 					</CardContent>
 				</Card>
-				<Card>
+				<Card className="h-fit">
 					<CardContent className="p-4">
 						<Tabs defaultValue="preview" onValueChange={setActiveTab}>
 							<div className="flex flex-col gap-4 lg:flex-row justify-between items-center mb-4 ">

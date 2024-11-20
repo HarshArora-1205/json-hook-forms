@@ -71,7 +71,7 @@ export default function JSONEditor({ value, onChange }: JSONEditorProps) {
 
 	return (
 		<Editor
-			height="calc(100vh - 200px)"
+			height="calc(100vh - 250px)"
 			defaultLanguage="json"
 			value={value}
 			theme={theme === "light" ? "hc-light" : "vs-dark"}
