@@ -36,7 +36,22 @@ export default function JSONEditor({ value, onChange }: JSONEditorProps) {
 									type: "object",
 									properties: {
 										id: { type: "string" },
-										type: { type: "string" },
+										type: {
+											type: "string",
+											enum: [
+												"checkbox",
+												"email",
+												"number",
+												"range",
+												"tel",
+												"select",
+												"radio",
+												"text",
+												"textarea",
+												"switch",
+												"password",
+											],
+										},
 										label: { type: "string" },
 										required: { type: "boolean" },
 										placeholder: { type: "string" },
