@@ -82,11 +82,6 @@ describe('isValidSchema', () => {
           type: 'checkbox',
           label: 'Interests',
           required: false,
-          options: [
-            { value: 'sports', label: 'Sports' },
-            { value: 'music', label: 'Music' },
-            { value: 'reading', label: 'Reading' },
-          ],
         },
         {
           id: 'rating',
@@ -217,11 +212,6 @@ describe('generateZodSchema', () => {
           type: 'checkbox',
           label: 'Interests',
           required: false,
-          options: [
-            { value: 'sports', label: 'Sports' },
-            { value: 'music', label: 'Music' },
-            { value: 'reading', label: 'Reading' },
-          ],
         },
       ],
     }
@@ -234,7 +224,7 @@ describe('generateZodSchema', () => {
       name: 'John Doe',
       email: 'john@example.com',
       age: 30,
-      interests: ['sports', 'reading'],
+      interests: true,
     }
 
     expect(() => zodSchema.parse(validData)).not.toThrow()

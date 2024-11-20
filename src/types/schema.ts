@@ -69,7 +69,6 @@ export interface RadioField extends BaseField {
 
 export interface CheckboxField extends BaseField {
   type: 'checkbox';
-  options: Array<{ value: string; label: string }>;
 }
 
 export interface TextareaField extends BaseField {

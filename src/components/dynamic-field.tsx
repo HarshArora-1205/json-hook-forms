@@ -40,7 +40,6 @@ export default function DynamicField({ field, form }: DynamicFieldProps) {
 						{field.required && <span className="text-red-500"> *</span>}
 					</FormLabel>
 					<FormControl>{renderField(field, formField)}</FormControl>
-					{/* <FormDescription>{field.validation?.message}</FormDescription> */}
 					<FormMessage />
 				</FormItem>
 			)}
@@ -105,27 +104,13 @@ function renderField(field: Field, formField: FieldValues) {
 			);
 		case "checkbox":
 			return (
-				<div className="flex flex-col space-y-2">
-					{field.options?.map((option) => (
-						<div key={option.value} className="flex items-center space-x-2">
-							<Checkbox
-								id={`${field.id}-${option.value}`}
-								checked={formField.value?.includes(option.value)}
-								onCheckedChange={(checked) => {
-									const updatedValue = checked
-										? [...(formField.value || []), option.value]
-										: formField.value?.filter(
-												(v: string) => v !== option.value
-										  );
-									formField.onChange(updatedValue);
-								}}
-							/>
-							<Label htmlFor={`${field.id}-${option.value}`}>
-								{option.label}
-							</Label>
-						</div>
-					))}
-				</div>
+        <Checkbox
+					className="block"
+          checked={formField.value}
+          onCheckedChange={(checked) => {
+            formField.onChange(checked);
+          }}
+        />
 			);
 		case "switch":
 			return (

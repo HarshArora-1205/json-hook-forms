@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { z } from "zod";
-import { Schema, FieldType } from "@/types/schema";
+import { Schema, FieldType, Field } from "@/types/schema";
 
 export class SchemaValidationError extends Error {
 	constructor(public errors: string[]) {
@@ -28,6 +28,11 @@ export function isValidSchema(schema: any): schema is Schema {
 
 	if (!Array.isArray(schema.fields)) {
 		errors.push("fields must be an array");
+		throw new SchemaValidationError(errors);
+	}
+
+	if(schema.fields.length === 0){
+		errors.push("fields can not be empty");
 		throw new SchemaValidationError(errors);
 	}
 
@@ -166,9 +171,10 @@ function validateFieldTypeSpecificConstraints(field: any, errors: string[]) {
 				}
 			}
 			break;
+		case "checkbox":
+			break;
 		case "select":
 		case "radio":
-		case "checkbox":
 			if (!Array.isArray(field.options) || field.options.length === 0) {
 				errors.push(`Field "${field.id}" must have non-empty options array`);
 			} else {
@@ -189,136 +195,232 @@ function validateFieldTypeSpecificConstraints(field: any, errors: string[]) {
 }
 
 export function generateZodSchema(schema: Schema) {
-	return z.object(
-		schema.fields.reduce((acc, field) => {
-			let fieldSchema: z.ZodType = z.string();
+  return z.object(
+    schema.fields.reduce<Record<string, z.ZodTypeAny>>((acc, field) => {
+      switch (field.type) {
+        case 'text':
+        case 'textarea':
+          acc[field.id] = field.required
+            ? z.string().min(1, `${field.label} is required`)
+            : z.string().optional();
+          break;
 
-			switch (field.type) {
-				case "checkbox":
-					fieldSchema = z.array(z.string());
-					break;
-				case "email":
-					if (field.required) {
-						fieldSchema = z.string().email("Invalid email address");
-						if (field.validation?.pattern) {
-							fieldSchema = (fieldSchema as z.ZodString).regex(
-								new RegExp(field.validation.pattern),
-								field.validation.message || "Invalid format"
-							);
-						}
-					} else {
-						fieldSchema = z
-							.string()
-							.email("Invalid email address")
-							.or(z.literal(""))
-							.optional();
-					}
-					break;
-				case "number":
-					fieldSchema = z.number();
-					if (field.validation?.min !== undefined) {
-						fieldSchema = (fieldSchema as z.ZodNumber).min(
-							field.validation.min,
-							`Minimum value is ${field.validation.min}`
-						);
-					}
-					if (field.validation?.max !== undefined) {
-						fieldSchema = (fieldSchema as z.ZodNumber).max(
-							field.validation.max,
-							`Maximum value is ${field.validation.max}`
-						);
-					}
-					break;
-				case "range":
-					fieldSchema = z
-						.number()
-						.min(
-							field.validation.min,
-							`Minimum value is ${field.validation.min}`
-						)
-						.max(
-							field.validation.max,
-							`Maximum value is ${field.validation.max}`
-						);
-					break;
-				case "tel":
-					fieldSchema = z.string();
-					if (field.validation?.pattern) {
-						fieldSchema = (fieldSchema as z.ZodString).regex(
-							new RegExp(field.validation.pattern),
-							field.validation.message || "Invalid phone number"
-						);
-					} else {
-						fieldSchema = (fieldSchema as z.ZodString).regex(
-							/^\d{10}$/,
-							"Phone number must be 10 digits"
-						);
-					}
-					break;
-				case "select":
-				case "radio":
-					const optionsValues = field.options.map((option) => option.value);
-
-					if (field.required) {
-						fieldSchema = z
-							.string()
-							.refine(
-								(val) =>
-									val !== undefined &&
-									val !== null &&
-									val !== "" &&
-									optionsValues.includes(val),
-								{ message: `${field.label} is required` }
-							);
-					} else {
-						fieldSchema = z
-							.string()
-							.refine(
-								(val) =>
-									val === undefined ||
-									val === null ||
-									val === "" ||
-									optionsValues.includes(val),
-								{ message: "Invalid selection" }
-							)
-							.optional()
-							.nullable();
-					}
-					break;
-				case "switch":
-          if (field.required) {
-            fieldSchema = z.boolean().refine(val => val === true, {
-              message: 'This field must be true',
-            });
-          } else {
-            fieldSchema = z.boolean();
+        case 'email':
+          let emailSchema = z.string().email('Invalid email address');
+          if (field.validation?.pattern) {
+            emailSchema = emailSchema.regex(
+              new RegExp(field.validation.pattern),
+              field.validation.message || 'Invalid email format'
+            );
           }
-					break;
-				case "password":
-					fieldSchema = (z.string() as z.ZodString).min(
-						8,
-						"Password must be at least 8 characters long"
-					);
-					break;
-				case "textarea":
-					fieldSchema = z.string();
-					break;
-			}
+          acc[field.id] = field.required ? emailSchema : emailSchema.optional();
+          break;
 
-			if (field.type !== "select" && field.type !== "radio" && field.type !== "switch") {
-				if (field.required) {
-					fieldSchema = fieldSchema.refine(
-						(val) => val !== undefined && val !== null && val !== "",
-						{
-							message: `${field.label} is required`,
-						}
-					);
-				} else {
-					fieldSchema = fieldSchema.optional();
-				}
-			}
+        case 'password':
+          acc[field.id] = field.required
+            ? z.string().min(8, 'Password must be at least 8 characters long')
+            : z.string().min(8, 'Password must be at least 8 characters long').optional();
+          break;
 
-			return { ...acc, [field.id]: fieldSchema };
-		}, {})
-	);
+        case 'number':
+          let numberSchema = z.number();
+          if (field.validation?.min !== undefined) {
+            numberSchema = numberSchema.min(
+              field.validation.min,
+              field.validation.message || `Minimum value is ${field.validation.min}`
+            );
+          }
+          if (field.validation?.max !== undefined) {
+            numberSchema = numberSchema.max(
+              field.validation.max,
+              field.validation.message || `Maximum value is ${field.validation.max}`
+            );
+          }
+          if (field.validation?.step !== undefined) {
+            numberSchema = numberSchema.multipleOf(field.validation.step);
+          }
+          acc[field.id] = field.required ? numberSchema : numberSchema.optional();
+          break;
+
+        case 'range':
+          let rangeSchema = z.number()
+            .min(
+              field.validation.min,
+              field.validation.message || `Minimum value is ${field.validation.min}`
+            )
+            .max(
+              field.validation.max,
+              field.validation.message || `Maximum value is ${field.validation.max}`
+            );
+          if (field.validation.step !== undefined) {
+            rangeSchema = rangeSchema.multipleOf(field.validation.step);
+          }
+          acc[field.id] = field.required ? rangeSchema : rangeSchema.optional();
+          break;
+
+        case 'tel':
+          const telSchema = field.validation?.pattern
+            ? z.string().regex(
+                new RegExp(field.validation.pattern),
+                field.validation.message || 'Invalid phone number format'
+              )
+            : z.string().regex(/^\d{10}$/, 'Phone number must be 10 digits');
+          acc[field.id] = field.required ? telSchema : telSchema.optional();
+          break;
+
+        case 'select':
+        case 'radio':
+          const optionsValues = field.options.map(option => option.value);
+          const selectSchema = z.enum(optionsValues as [string, ...string[]]);
+          acc[field.id] = field.required ? selectSchema : selectSchema.optional();
+          break;
+
+        case 'checkbox':
+          acc[field.id] = field.required
+            ? z.boolean().refine(val => val === true, { message: `${field.label} must be checked` })
+            : z.boolean();
+          break;
+
+        case 'switch':
+          acc[field.id] = field.required
+            ? z.boolean().refine(val => val === true, { message: `${field.label} must be turned on` })
+            : z.boolean();
+          break;
+
+        default:
+          throw new Error(`Unsupported field type: ${(field as Field).type}`);
+      }
+
+      return acc;
+    }, {})
+  );
 }
+// export function generateZodSchema(schema: Schema) {
+//   return z.object(
+//     schema.fields.reduce((acc, field) => {
+//       let fieldSchema: z.;
+
+//       switch (field.type) {
+//         case 'text':
+//         case 'textarea':
+//           fieldSchema = z.string().trim();
+//           if (field.required) {
+//             fieldSchema = fieldSchema.min(1, `${field.label} is required`);
+//           }
+//           break;
+
+//         case 'email':
+//           fieldSchema = z.string().email('Invalid email address');
+//           if (field.validation?.pattern) {
+//             fieldSchema = fieldSchema.regex(
+//               new RegExp(field.validation.pattern),
+//               field.validation.message || 'Invalid email format'
+//             );
+//           }
+//           if (!field.required) {
+//             fieldSchema = fieldSchema.or(z.literal(''));
+//           }
+//           break;
+
+//         case 'password':
+//           fieldSchema = z.string().min(8, 'Password must be at least 8 characters long');
+//           if (field.required) {
+//             fieldSchema = fieldSchema.min(1, `${field.label} is required`);
+//           }
+//           break;
+
+//         case 'number':
+//           fieldSchema = z.number();
+//           if (field.validation?.min !== undefined) {
+//             fieldSchema = fieldSchema.min(
+//               field.validation.min,
+//               field.validation.message || `Minimum value is ${field.validation.min}`
+//             );
+//           }
+//           if (field.validation?.max !== undefined) {
+//             fieldSchema = fieldSchema.max(
+//               field.validation.max,
+//               field.validation.message || `Maximum value is ${field.validation.max}`
+//             );
+//           }
+//           if (field.validation?.step !== undefined) {
+//             fieldSchema = fieldSchema.multipleOf(field.validation.step);
+//           }
+//           break;
+
+//         case 'range':
+//           fieldSchema = z.number()
+//             .min(
+//               field.validation.min,
+//               field.validation.message || `Minimum value is ${field.validation.min}`
+//             )
+//             .max(
+//               field.validation.max,
+//               field.validation.message || `Maximum value is ${field.validation.max}`
+//             );
+//           if (field.validation.step !== undefined) {
+//             fieldSchema = fieldSchema.multipleOf(field.validation.step);
+//           }
+//           break;
+
+//         case 'tel':
+//           fieldSchema = z.string();
+//           if (field.validation?.pattern) {
+//             fieldSchema = fieldSchema.regex(
+//               new RegExp(field.validation.pattern),
+//               field.validation.message || 'Invalid phone number format'
+//             );
+//           } else {
+//             fieldSchema = fieldSchema.regex(/^\d{10}$/, 'Phone number must be 10 digits');
+//           }
+//           if (field.required) {
+//             fieldSchema = fieldSchema.min(1, `${field.label} is required`);
+//           }
+//           break;
+
+//         case 'select':
+//         case 'radio':
+//           const optionsValues = field.options.map(option => option.value);
+//           fieldSchema = z.string().refine(
+//             val => optionsValues.includes(val),
+//             { message: `Invalid selection for ${field.label}` }
+//           );
+//           if (field.required) {
+//             fieldSchema = fieldSchema.min(1, `${field.label} is required`);
+//           }
+//           break;
+
+//         case 'checkbox':
+//           const checkboxOptionsValues = field.options.map(option => option.value);
+//           fieldSchema = z.array(
+//             z.string().refine(
+//               val => checkboxOptionsValues.includes(val),
+//               { message: `Invalid selection for ${field.label}` }
+//             )
+//           );
+//           if (field.required) {
+//             fieldSchema = fieldSchema.min(1, `Please select at least one option for ${field.label}`);
+//           }
+//           break;
+
+//         case 'switch':
+//           fieldSchema = z.boolean();
+//           if (field.required) {
+//             fieldSchema = fieldSchema.refine(val => val === true, {
+//               message: `${field.label} must be turned on`
+//             });
+//           }
+//           break;
+
+//         default:
+//           throw new Error(`Unsupported field type: ${(field as Field).type}`);
+//       }
+
+//       if (!field.required && field.type !== 'checkbox' && field.type !== 'switch') {
+//         fieldSchema = fieldSchema.optional();
+//       }
+
+//       return { ...acc, [field.id]: fieldSchema };
+//     }, {})
+//   );
+// }
