@@ -26,21 +26,24 @@ export default function CodePreview({
 	}, [generatedCode, setCode]);
 
 	return (
-		<SyntaxHighlighter
-			language="typescript"
-			style={tomorrow}
-			customStyle={{
-				margin: 0,
-				padding: "1rem",
-				fontSize: "0.875rem",
-				lineHeight: "1.25rem",
-				width: "100%",
-				height: "calc(100vh - 250px)",
-				overflow: "auto",
-			}}
-		>
-			{generatedCode}
-		</SyntaxHighlighter>
+    <SyntaxHighlighter
+      language="typescript"
+      style={tomorrow}
+      wrapLines={true}
+      lineProps={{
+        style: { wordBreak: 'break-all', whiteSpace: 'pre-wrap' }
+      }}
+      customStyle={{
+        margin: 0,
+        padding: "1rem",
+        fontSize: "0.875rem",
+        lineHeight: "1.25rem",
+        maxHeight: "calc(100vh - 250px)",
+        overflow: "auto",
+      }}
+    >
+      {generatedCode}
+    </SyntaxHighlighter>
 	);
 }
 

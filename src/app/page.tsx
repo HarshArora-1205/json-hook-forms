@@ -101,7 +101,7 @@ export default function Home() {
 				<Card>
 					<CardContent className="p-4">
 						<Tabs defaultValue="preview" onValueChange={setActiveTab}>
-							<div className="flex justify-between items-center mb-4">
+							<div className="flex flex-col gap-4 lg:flex-row justify-between items-center mb-4 ">
 								<TabsList>
 									<TabsTrigger value="preview">Form Preview</TabsTrigger>
 									<TabsTrigger value="code">Generated Code</TabsTrigger>
