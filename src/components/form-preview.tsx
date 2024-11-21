@@ -26,19 +26,31 @@ export default function FormPreview({ schema }: FormPreviewProps) {
 		),
 	});
 
+	const downloadJSON = (data: any, filename: string) => {
+		const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+		const link = document.createElement('a');
+		link.href = URL.createObjectURL(blob);
+		link.download = filename;
+		link.click();
+	};
+
 	const onSubmit = async (data: z.infer<typeof zodSchema>) => {
 		try {
-			// Show loading state during submission
 			await new Promise((resolve) => setTimeout(resolve, 1000));
 
 			toast({
 				title: "Form Submitted Successfully",
 				description: (
-					<pre className="mt-2 w-full rounded-md bg-slate-950 p-4">
-						<code className="text-white">{JSON.stringify(data, null, 2)}</code>
-					</pre>
+					<>
+						<pre className="my-4 w-full rounded-md bg-slate-950 p-4">
+							<code className="text-white">{JSON.stringify(data, null, 2)}</code>
+						</pre>
+						<Button variant={"outline"} onClick={() => {downloadJSON(data, 'form_submission.json')}}>Download JSON</Button>
+					</>
 				),
 			});
+
+			
 		} catch (error) {
 			console.error(error)
 			toast({
