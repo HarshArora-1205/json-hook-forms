@@ -10,6 +10,11 @@ export interface BaseField {
 export interface TextField extends BaseField {
   type: 'text';
   placeholder?: string;
+  validation?: {
+    min?: number;
+    max?: number;
+    message?: string;
+  };
 }
 
 export interface EmailField extends BaseField {
@@ -24,6 +29,10 @@ export interface EmailField extends BaseField {
 export interface PasswordField extends BaseField {
   type: 'password';
   placeholder?: string;
+  validation?: {
+    pattern?: string;
+    message?: string;
+  };
 }
 
 export interface NumberField extends BaseField {
@@ -79,6 +88,11 @@ export interface CheckboxGroupField extends BaseField {
 export interface TextareaField extends BaseField {
   type: 'textarea';
   placeholder?: string;
+  validation?: {
+    min?: number;
+    max?: number;
+    message?: string;
+  };
 }
 
 export interface SwitchField extends BaseField {

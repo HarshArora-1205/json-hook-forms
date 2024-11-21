@@ -218,6 +218,7 @@ function generateShadcnCode(schema: Schema): string {
               <FormLabel>${field.label}${field.required ? " *" : ""}</FormLabel>
               <FormControl>
                 <Input 
+                  autocomplete="off"
                   type="${field.type}" 
                   placeholder="${
 										"placeholder" in field && field.placeholder
@@ -241,6 +242,7 @@ function generateShadcnCode(schema: Schema): string {
               <FormLabel>${field.label}${field.required ? " *" : ""}</FormLabel>
               <FormControl>
                 <Input 
+                  autocomplete="off"
                   type="number" 
                   placeholder="${
 										"placeholder" in field && field.placeholder
@@ -439,6 +441,7 @@ function generateShadcnCode(schema: Schema): string {
               <FormLabel>${field.label}${field.required ? " *" : ""}</FormLabel>
               <FormControl>
                 <Switch
+                  className="block"
                   checked={field.value}
                   onCheckedChange={field.onChange}
                 />

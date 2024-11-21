@@ -18,12 +18,12 @@ export function isValidSchema(schema: any): schema is Schema {
 		throw new SchemaValidationError(errors);
 	}
 
-	if (typeof schema.formTitle !== "string") {
-		errors.push("formTitle must be a string");
+	if (typeof schema.formTitle !== "string" || schema.formTitle === "") {
+		errors.push("formTitle is required as a string");
 	}
 
-	if (typeof schema.formDescription !== "string") {
-		errors.push("formDescription must be a string");
+	if (typeof schema.formDescription !== "string" || schema.formDescription === "") {
+		errors.push("formDescription is required as a string");
 	}
 
 	if (!Array.isArray(schema.fields)) {
@@ -202,47 +202,83 @@ export function generateZodSchema(schema: Schema) {
       switch (field.type) {
         case 'text':
         case 'textarea':
-          acc[field.id] = field.required
-            ? z.string().min(1, `${field.label} is required`)
-            : z.string().optional();
-          break;
+          let textSchema = z.string();
 
-        case 'email':
-          let emailSchema = z.string().email('Invalid email address');
-          if (field.validation?.pattern) {
-            emailSchema = emailSchema.regex(
-              new RegExp(field.validation.pattern),
-              field.validation.message || 'Invalid email format'
-            );
-          }
-          acc[field.id] = field.required ? emailSchema : emailSchema.optional();
-          break;
+					if (field.validation?.min !== undefined) {
+						textSchema = textSchema.min(
+							field.validation.min,
+							field.validation.message || `${field.label} must be at least ${field.validation.min} characters long`
+						);
+					}
+
+					if (field.validation?.max !== undefined) {
+						textSchema = textSchema.max(
+							field.validation.max,
+							field.validation.message || `${field.label} must be no longer than ${field.validation.max} characters`
+						);
+					}
+
+					acc[field.id] = field.required
+						? textSchema.min(1, `${field.label} is required`)
+						: textSchema.optional();
+					break;
+
+				case 'email':
+					let emailSchema = z.string().email('Invalid email address');
+				
+					if (field.validation?.pattern) {
+						emailSchema = emailSchema.regex(
+							new RegExp(field.validation.pattern),
+							field.validation.message || 'Invalid email format'
+						);
+					}
+				
+					acc[field.id] = field.required
+						? emailSchema
+						: z.union([emailSchema, z.literal('')]);
+					break;
 
         case 'password':
-          acc[field.id] = field.required
-            ? z.string().min(8, 'Password must be at least 8 characters long')
-            : z.string().min(8, 'Password must be at least 8 characters long').optional();
-          break;
+          let passwordSchema = z.string();
 
-        case 'number':
-          let numberSchema = z.number();
-          if (field.validation?.min !== undefined) {
-            numberSchema = numberSchema.min(
-              field.validation.min,
-              field.validation.message || `Minimum value is ${field.validation.min}`
-            );
-          }
-          if (field.validation?.max !== undefined) {
-            numberSchema = numberSchema.max(
-              field.validation.max,
-              field.validation.message || `Maximum value is ${field.validation.max}`
-            );
-          }
-          if (field.validation?.step !== undefined) {
-            numberSchema = numberSchema.multipleOf(field.validation.step);
-          }
-          acc[field.id] = field.required ? numberSchema : numberSchema.optional();
-          break;
+					if (field.validation?.pattern) {
+						passwordSchema = passwordSchema.regex(
+							new RegExp(field.validation.pattern),
+							field.validation.message || 'Invalid password format'
+						);
+					} else {
+						passwordSchema = passwordSchema.min(8, 'Password must be at least 8 characters long');
+					}
+
+					acc[field.id] = field.required
+						? passwordSchema
+						: z.union([passwordSchema, z.literal('')]);
+					break;
+
+				case 'number':
+					let numberSchema = z.number();
+					if (field.validation?.min !== undefined) {
+						numberSchema = numberSchema.min(
+							field.validation.min,
+							field.validation.message || `Minimum value is ${field.validation.min}`
+						);
+					}
+					if (field.validation?.max !== undefined) {
+						numberSchema = numberSchema.max(
+							field.validation.max,
+							field.validation.message || `Maximum value is ${field.validation.max}`
+						);
+					}
+					if (field.validation?.step !== undefined) {
+						numberSchema = numberSchema.multipleOf(
+							field.validation.step,
+							field.validation.message || `Value must be a multiple of ${field.validation.step}`
+						);
+					}
+					acc[field.id] = field.required
+						? z.preprocess((val) => (typeof val === "string" ? Number(val) : val), numberSchema)
+						: z.preprocess((val) => (typeof val === "string" ? Number(val) : val), numberSchema.optional());
+					break;
 
         case 'range':
           let rangeSchema = z.number()
@@ -257,7 +293,7 @@ export function generateZodSchema(schema: Schema) {
           if (field.validation.step !== undefined) {
             rangeSchema = rangeSchema.multipleOf(field.validation.step);
           }
-          acc[field.id] = field.required ? rangeSchema : rangeSchema.optional();
+          acc[field.id] = rangeSchema;
           break;
 
         case 'tel':
@@ -267,15 +303,15 @@ export function generateZodSchema(schema: Schema) {
                 field.validation.message || 'Invalid phone number format'
               )
             : z.string().regex(/^\d{10}$/, 'Phone number must be 10 digits');
-          acc[field.id] = field.required ? telSchema : telSchema.optional();
+          acc[field.id] = field.required ? telSchema : z.union([telSchema, z.literal("")]);
           break;
 
         case 'select':
-					case 'radio':
-						const optionsValues = field.options.map(option => option.value);
-						const selectSchema = z.enum(optionsValues as [string, ...string[]]);
-						acc[field.id] = field.required ? selectSchema : selectSchema.optional();
-						break;
+				case 'radio':
+					const optionsValues = field.options.map(option => option.value);
+					const selectSchema = z.enum(optionsValues as [string, ...string[]]);
+					acc[field.id] = field.required ? selectSchema : z.union([selectSchema, z.literal("")]);;
+					break;
 
 				case 'checkbox-group':
 					const checkboxGroupSchema = z.array(z.string());

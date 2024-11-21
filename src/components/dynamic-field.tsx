@@ -53,10 +53,21 @@ function renderField(field: Field, formField: FieldValues) {
 		case "email":
 		case "password":
 		case "tel":
+			return (
+				<Input
+				  autoComplete="off"
+					type={field.type}
+					placeholder={field.placeholder}
+					{...formField}
+				/>
+			);
 		case "number":
 			return (
 				<Input
+				  autoComplete="off"
 					type={field.type}
+					min={field.validation?.min}
+					max={field.validation?.max}
 					placeholder={field.placeholder}
 					{...formField}
 				/>
@@ -139,6 +150,7 @@ function renderField(field: Field, formField: FieldValues) {
 		case "switch":
 			return (
 				<Switch
+					className="block"
 					checked={formField.value}
 					onCheckedChange={formField.onChange}
 				/>
