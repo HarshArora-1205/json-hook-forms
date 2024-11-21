@@ -27,6 +27,7 @@ If you like it, give it a star 😄.
   - Supports multiple field types: text, email, select, radio, and textarea.
   - Includes validation messages and placeholders.
   - Submits form data to `console.log()` and displays a success toast notification.
+  - Submitted data can be downloaded as JSON.
   - Provides proper loading states and error handling.
 
 - **Additional Features**:
