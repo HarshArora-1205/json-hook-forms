@@ -91,13 +91,33 @@ function isValidFieldType(type: any): type is FieldType {
 	].includes(type);
 }
 
+function isValidRegex(pattern: string, inputType: 'email' | 'password' | 'tel'): boolean {
+  try {
+    new RegExp(pattern);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
 function validateFieldTypeSpecificConstraints(field: any, errors: string[]) {
 	switch (field.type) {
+		case "textarea":
 		case "text":
+			if (field.validation) {
+				if (
+					typeof field.validation.min === "number" && 
+					typeof field.validation.max === "number" &&
+					field.validation.min > field.validation.max
+				) {
+					errors.push(
+						`Field "${field.id}": max should be greater than min`
+					);
+				}
+			}
 		case "password":
 		case "email":
 		case "tel":
-		case "textarea":
 		case "select":
 			if (
 				field.placeholder !== undefined &&
@@ -110,6 +130,7 @@ function validateFieldTypeSpecificConstraints(field: any, errors: string[]) {
 
 	switch (field.type) {
 		case "email":
+		case "password":
 		case "tel":
 			if (field.validation) {
 				if (
@@ -119,6 +140,13 @@ function validateFieldTypeSpecificConstraints(field: any, errors: string[]) {
 					errors.push(
 						`Field "${field.id}" validation pattern must be a string`
 					);
+				} else if (typeof field.validation.pattern === "string") {
+					const pattern = field.validation.pattern;
+					if (!isValidRegex(pattern, field.type)) {
+							errors.push(
+									`Field "${field.id}" validation pattern must be a valid regex expression.`
+							);
+					}
 				}
 				if (
 					field.validation.message !== undefined &&
@@ -144,6 +172,15 @@ function validateFieldTypeSpecificConstraints(field: any, errors: string[]) {
 					typeof field.validation.max !== "number"
 				) {
 					errors.push(`Field "${field.id}" max value must be a number`);
+				}
+				if (
+					typeof field.validation.min === "number" && 
+					typeof field.validation.max === "number" &&
+					field.validation.min > field.validation.max
+				) {
+					errors.push(
+						`Field "${field.id}": max should be greater than min`
+					);
 				}
 				if (
 					field.validation.step !== undefined &&
@@ -314,10 +351,11 @@ export function generateZodSchema(schema: Schema) {
 					break;
 
 				case 'checkbox-group':
-					const checkboxGroupSchema = z.array(z.string());
+					const checkboxOptionsValues = field.options.map(option => option.value);
+					const checkboxGroupSchema = z.array(z.enum(checkboxOptionsValues as [string, ...string[]]));
 					acc[field.id] = field.required
 						? checkboxGroupSchema.min(1, `Please select at least one option for ${field.label}`)
-						: checkboxGroupSchema;
+						: z.union([checkboxGroupSchema, z.array(z.string()).length(0)]);
 					break;
 					
         case 'checkbox':

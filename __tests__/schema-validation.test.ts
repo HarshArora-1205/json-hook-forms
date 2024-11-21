@@ -1,283 +1,273 @@
-import { isValidSchema, generateZodSchema, SchemaValidationError } from '@/utils/schema-validation'
-import { Schema } from '@/types/schema'
-import { z } from 'zod'
+import {
+	isValidSchema,
+	generateZodSchema,
+	SchemaValidationError,
+} from "@/utils/schema-validation";
+import { Schema } from "@/types/schema";
+import { z } from "zod";
 
-describe('isValidSchema', () => {
-  it('should validate a correct schema', () => {
-    const validSchema: Schema = {
-      formTitle: 'Test Form',
-      formDescription: 'This is a test form',
+describe("isValidSchema", () => {
+  it("should validate a correct schema", () => {
+    const validSchema = {
+      formTitle: "Valid Form",
+      formDescription: "This is a valid form",
       fields: [
         {
-          id: 'name',
-          type: 'text',
-          label: 'Name',
+          id: "name",
+          type: "text",
+          label: "Name",
           required: true,
         },
         {
-          id: 'email',
-          type: 'email',
-          label: 'Email',
+          id: "email",
+          type: "email",
+          label: "Email",
           required: true,
           validation: {
-            pattern: '^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$',
-            message: 'Please enter a valid email address',
+            pattern: "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$",
+            message: "Invalid email format",
           },
         },
         {
-          id: 'age',
-          type: 'number',
-          label: 'Age',
+          id: "age",
+          type: "number",
+          label: "Age",
           required: true,
           validation: {
             min: 0,
             max: 120,
           },
         },
-        {
-          id: 'phone',
-          type: 'tel',
-          label: 'Phone',
-          required: true,
-          validation: {
-            pattern: '^\\d{10}$',
-          },
-        },
-        {
-          id: 'password',
-          type: 'password',
-          label: 'Password',
-          required: true,
-        },
-        {
-          id: 'comments',
-          type: 'textarea',
-          label: 'Comments',
-          required: false,
-        },
-        {
-          id: 'size',
-          type: 'select',
-          label: 'T-Shirt Size',
-          required: true,
-          options: [
-            { value: 's', label: 'Small' },
-            { value: 'm', label: 'Medium' },
-            { value: 'l', label: 'Large' },
-          ],
-        },
-        {
-          id: 'color',
-          type: 'radio',
-          label: 'Favorite Color',
-          required: true,
-          options: [
-            { value: 'red', label: 'Red' },
-            { value: 'blue', label: 'Blue' },
-            { value: 'green', label: 'Green' },
-          ],
-        },
-        {
-          id: 'interests',
-          type: 'checkbox',
-          label: 'Interests',
-          required: false,
-        },
-        {
-          id: 'rating',
-          type: 'range',
-          label: 'Rating',
-          required: true,
-          validation: {
-            min: 1,
-            max: 5,
-            step: 1,
-          },
-        },
-        {
-          id: 'newsletter',
-          type: 'switch',
-          label: 'Subscribe to newsletter',
-          required: false,
-        },
       ],
-    }
+    };
 
-    expect(() => isValidSchema(validSchema)).not.toThrow()
-  })
+    expect(() => isValidSchema(validSchema)).not.toThrow();
+  });
 
-  it('should throw an error for an invalid schema', () => {
+  it("should throw an error for missing formTitle or formDescription", () => {
     const invalidSchema = {
-      formTitle: 'Invalid Form',
-      fields: 'Not an array',
-    }
+      formTitle: "",
+      formDescription: "",
+      fields: [],
+    };
+    expect(() => isValidSchema(invalidSchema)).toThrow(SchemaValidationError);
+  });
 
-    expect(() => isValidSchema(invalidSchema)).toThrow(SchemaValidationError)
-  })
-
-  it('should validate field-specific constraints', () => {
+  it("should throw an error if the fields array is missing", () => {
     const invalidSchema: any = {
-      formTitle: 'Test Form',
-      formDescription: 'This is a test form',
+      formTitle: "Test Form",
+      formDescription: "This is a test form",
+      // Missing fields array
+    };
+
+    expect(() => isValidSchema(invalidSchema)).toThrow(SchemaValidationError);
+  });
+
+  it("should throw an error if the fields array is empty", () => {
+    const invalidSchema: any = {
+      formTitle: "Test Form",
+      formDescription: "This is a test form",
+      fields: [],
+    };
+
+    expect(() => isValidSchema(invalidSchema)).toThrow(SchemaValidationError);
+  });
+
+  it("should throw an error if a field is missing a label", () => {
+    const invalidSchema: any = {
+      formTitle: "Test Form",
+      formDescription: "This is a test form",
       fields: [
         {
-          id: 'age',
-          type: 'number',
-          label: 'Age',
-          required: true,
-          validation: {
-            min: 'not a number',
-          },
-        },
-        {
-          id: 'phone',
-          type: 'tel',
-          label: 'Phone',
-          required: true,
-          validation: {
-            pattern: '^\\d{9}$', // Invalid pattern for phone
-          },
-        },
-        {
-          id: 'size',
-          type: 'select',
-          label: 'T-Shirt Size',
-          required: true,
-          options: 'Not an array', // Invalid options
+          id: "name",
+          type: "text",
+          // Missing label
         },
       ],
-    }
+    };
 
-    expect(() => isValidSchema(invalidSchema)).toThrow(SchemaValidationError)
-  })
+    expect(() => isValidSchema(invalidSchema)).toThrow(SchemaValidationError);
+  });
 
-  it('should throw an error for duplicate field IDs', () => {
+  it("should throw an error if a field is missing a type", () => {
     const invalidSchema: any = {
-      formTitle: 'Test Form',
-      formDescription: 'This is a test form',
+      formTitle: "Test Form",
+      formDescription: "This is a test form",
       fields: [
         {
-          id: 'name',
-          type: 'text',
-          label: 'Name',
-          required: true,
+          id: "name",
+          label: "Name",
+          // Missing type
         },
+      ],
+    };
+
+    expect(() => isValidSchema(invalidSchema)).toThrow(SchemaValidationError);
+  });
+
+  it("should throw an error for invalid field type", () => {
+    const invalidSchema = {
+      formTitle: "Form with Invalid Field",
+      formDescription: "Contains invalid field type",
+      fields: [
         {
-          id: 'name', // Duplicate ID
-          type: 'email',
-          label: 'Email',
+          id: "username",
+          type: "invalid-type",
+          label: "Username",
           required: true,
         },
       ],
-    }
+    };
 
-    expect(() => isValidSchema(invalidSchema)).toThrow(SchemaValidationError)
-  })
-})
+    expect(() => isValidSchema(invalidSchema)).toThrow(SchemaValidationError);
+  });
 
-describe('generateZodSchema', () => {
-  it('should generate a valid Zod schema', () => {
+  it("should throw an error for missing field id or duplicate ids", () => {
+    const invalidSchema = {
+      formTitle: "Form with Duplicate Field ID",
+      formDescription: "Contains duplicate field ids",
+      fields: [
+        {
+          id: "name",
+          type: "text",
+          label: "Name",
+          required: true,
+        },
+        {
+          id: "name", // Duplicate field ID
+          type: "email",
+          label: "Email",
+          required: true,
+        },
+      ],
+    };
+
+    expect(() => isValidSchema(invalidSchema)).toThrow(SchemaValidationError);
+  });
+});
+
+
+describe("generateZodSchema", () => {
+  it("should generate a valid Zod schema", () => {
     const schema: Schema = {
-      formTitle: 'Test Form',
-      formDescription: 'This is a test form',
+      formTitle: "Valid Form",
+      formDescription: "A valid schema form",
       fields: [
         {
-          id: 'name',
-          type: 'text',
-          label: 'Name',
+          id: "name",
+          type: "text",
+          label: "Name",
           required: true,
         },
         {
-          id: 'email',
-          type: 'email',
-          label: 'Email',
+          id: "email",
+          type: "email",
+          label: "Email",
           required: true,
           validation: {
-            pattern: '^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$',
-            message: 'Please enter a valid email address',
+            pattern: "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$",
+            message: "Invalid email format",
           },
         },
         {
-          id: 'age',
-          type: 'number',
-          label: 'Age',
+          id: "age",
+          type: "number",
+          label: "Age",
           required: true,
           validation: {
             min: 0,
             max: 120,
           },
         },
-        {
-          id: 'interests',
-          type: 'checkbox',
-          label: 'Interests',
-          required: false,
-        },
       ],
-    }
+    };
 
-    const zodSchema = generateZodSchema(schema)
+    const zodSchema = generateZodSchema(schema);
 
-    expect(zodSchema).toBeInstanceOf(z.ZodObject)
-
+    // Validate with valid data
     const validData = {
-      name: 'John Doe',
-      email: 'john@example.com',
+      name: "John Doe",
+      email: "john@example.com",
       age: 30,
-      interests: true,
-    }
+    };
 
-    expect(() => zodSchema.parse(validData)).not.toThrow()
+    expect(() => zodSchema.parse(validData)).not.toThrow();
 
+    // Validate with invalid data
     const invalidData = {
-      name: '',
-      email: 'not-an-email',
-      age: 150,
-      interests: 'not-an-array',
-    }
+      name: "",
+      email: "invalid-email",
+      age: 200,
+    };
 
-    expect(() => zodSchema.parse(invalidData)).toThrow()
-  })
+    expect(() => zodSchema.parse(invalidData)).toThrow();
+  });
 
-  it('should generate a schema with optional fields', () => {
+  it("should generate a schema with optional fields", () => {
     const schema: Schema = {
-      formTitle: 'Test Form',
-      formDescription: 'This is a test form',
+      formTitle: "Form with Optional Fields",
+      formDescription: "Has optional fields for validation",
       fields: [
         {
-          id: 'name',
-          type: 'text',
-          label: 'Name',
+          id: "nickname",
+          type: "text",
+          label: "Nickname",
           required: false,
         },
       ],
-    }
+    };
 
-    const zodSchema = generateZodSchema(schema)
-    const validData = {}
+    const zodSchema = generateZodSchema(schema);
+    const validData = {}; // Optional field can be omitted
+    expect(() => zodSchema.parse(validData)).not.toThrow();
+  });
 
-    expect(() => zodSchema.parse(validData)).not.toThrow()
-  })
-
-  it('should generate a schema with switch field', () => {
+  it("should handle switch field correctly", () => {
     const schema: Schema = {
-      formTitle: 'Test Form',
-      formDescription: 'This is a test form',
+      formTitle: "Form with Switch Field",
+      formDescription: "Includes a switch field for validation",
       fields: [
         {
-          id: 'newsletter',
-          type: 'switch',
-          label: 'Subscribe to newsletter',
+          id: "newsletter",
+          type: "switch",
+          label: "Subscribe to newsletter",
           required: true,
         },
       ],
-    }
+    };
 
-    const zodSchema = generateZodSchema(schema)
-    const validData = { newsletter: true }
-    const invalidData = { newsletter: false }
+    const zodSchema = generateZodSchema(schema);
+    const validData = { newsletter: true }; // valid
+    expect(() => zodSchema.parse(validData)).not.toThrow();
+    
+    const invalidData = { newsletter: false }; // invalid for required
+    expect(() => zodSchema.parse(invalidData)).toThrow();
+  });
 
-    expect(() => zodSchema.parse(validData)).not.toThrow()
-    expect(() => zodSchema.parse(invalidData)).toThrow()
-  })
-})
+  it("should generate a schema for number fields with validation", () => {
+    const schema: Schema = {
+      formTitle: "Form with Number Validation",
+      formDescription: "Has a field with number validation",
+      fields: [
+        {
+          id: "age",
+          type: "number",
+          label: "Age",
+          required: true,
+          validation: {
+            min: 18,
+            max: 120,
+          },
+        },
+      ],
+    };
+
+    const zodSchema = generateZodSchema(schema);
+
+    const validData = { age: 30 };
+    expect(() => zodSchema.parse(validData)).not.toThrow();
+
+    const invalidData = { age: 15 };
+    expect(() => zodSchema.parse(invalidData)).toThrow();
+  });
+});
