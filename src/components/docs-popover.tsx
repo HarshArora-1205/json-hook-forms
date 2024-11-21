@@ -26,7 +26,7 @@ export function DocsPopover() {
 						</Button>
 					</PopoverClose>
 					<ScrollArea className="h-[600px] p-4 overflow-y-auto">
-						<div className="sticky top-0 bg-background z-0 py-2">
+						<div id="all-types" className="bg-background z-0 py-2">
 							<h4 className="mb-4 text-sm font-medium leading-none">
 								JSON Hook Forms Docs
 							</h4>
@@ -65,9 +65,26 @@ export function DocsPopover() {
 								</ul>
 							</TabsContent>
 							<TabsContent value="fields">
+								<h5 className="text-sm font-medium mb-2">
+									You can use 12 types of fields as of now
+								</h5>
+								<ul className="text-sm list-disc list-inside mb-4">
+									{fieldTypes.map((field) => (
+									<li key={field.type}>
+										<a
+											href={`#${field.type}`}
+											className="cursor-pointer text-blue-500 underline"
+										>
+										{field.type}
+										</a>
+									</li>
+									))}
+								</ul>
 								{fieldTypes.map((field) => (
-									<div key={field.type} className="mb-4">
-										<h5 className="text-sm font-medium mb-2">{field.type}</h5>
+									<div key={field.type} id={field.type}  className="mb-4">
+										<h5 className="text-md font-medium mb-2">type: {field.type}
+											<a href="#all-types" className="ml-6 text-blue-500 underline">back to top</a>
+										</h5>
 										<p className="text-sm mb-2 break-words">
 											{field.description}
 										</p>
@@ -104,13 +121,19 @@ const fieldTypes = [
 			"label: string (required)",
 			"placeholder: string (optional)",
 			"required: boolean (optional)",
+			"validation: { min: number, max: number, message: string } (optional)",
 		],
 		example: `{
   "id": "name",
   "type": "text",
   "label": "Full Name",
   "required": true,
-  "placeholder": "Enter your full name"
+  "placeholder": "Enter your full name",
+  "validation": {
+    "min": 10,
+    "max": 120,
+    "message": "Length should be greater than equal to 10 and less than 120"
+  }
 }`,
 	},
 	{
@@ -145,7 +168,7 @@ const fieldTypes = [
 			"label: string (required)",
 			"placeholder: string (optional)",
 			"required: boolean (optional)",
-			"validation: { regex: string, message: string } (optional)",
+			"validation: { pattern: string, message: string } (optional)",
 		],
 		example: `{
   "id": "password",
@@ -154,7 +177,7 @@ const fieldTypes = [
   "required": true,
   "placeholder": "Enter your password",
   "validation": {
-    "regex": "^(?=.*[A-Za-z])(?=.*\\\\d)[A-Za-z\\\\d]{8,}$",
+    "pattern": "^(?=.*[A-Za-z])(?=.*\\\\d)[A-Za-z\\\\d]{8,}$",
     "message": "Password must be at least 8 characters long and contain at least one letter and one number"
   }
 }`,
@@ -213,6 +236,7 @@ const fieldTypes = [
 			"label: string (required)",
 			"placeholder: string (optional)",
 			"required: boolean (optional)",
+			"validation: { min: number, max: number, message: string } (optional)",
 		],
 		example: `{
   "id": "comments",
