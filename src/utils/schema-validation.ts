@@ -91,11 +91,12 @@ function isValidFieldType(type: any): type is FieldType {
 	].includes(type);
 }
 
-function isValidRegex(pattern: string, inputType: 'email' | 'password' | 'tel'): boolean {
+function isValidRegex(pattern: string): boolean {
   try {
     new RegExp(pattern);
     return true;
   } catch (e) {
+		console.error(e)
     return false;
   }
 }
@@ -142,7 +143,7 @@ function validateFieldTypeSpecificConstraints(field: any, errors: string[]) {
 					);
 				} else if (typeof field.validation.pattern === "string") {
 					const pattern = field.validation.pattern;
-					if (!isValidRegex(pattern, field.type)) {
+					if (!isValidRegex(pattern)) {
 							errors.push(
 									`Field "${field.id}" validation pattern must be a valid regex expression.`
 							);
