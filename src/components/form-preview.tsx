@@ -26,7 +26,7 @@ export default function FormPreview({ schema }: FormPreviewProps) {
 		),
 	});
 
-	const downloadJSON = (data: any, filename: string) => {
+	const downloadJSON = (data: z.infer<typeof zodSchema>, filename: string) => {
 		const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
 		const link = document.createElement('a');
 		link.href = URL.createObjectURL(blob);
