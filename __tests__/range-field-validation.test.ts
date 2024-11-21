@@ -27,8 +27,8 @@ describe("Range Field Tests", () => {
 
     expect(() => isValidSchema(validSchema)).not.toThrow();
 
-    const zodSchema = generateZodSchema(validSchema);
-
+    const { zodSchema } = generateZodSchema(validSchema);
+    
     // Valid data: rating within range and step
     const validData = { rating: 3 };
     expect(() => zodSchema.parse(validData)).not.toThrow();
@@ -67,8 +67,8 @@ describe("Range Field Tests", () => {
 
     expect(() => isValidSchema(validSchema)).not.toThrow();
 
-    const zodSchema = generateZodSchema(validSchema);
-
+    const { zodSchema } = generateZodSchema(validSchema);
+    
     // Valid data: rating within range
     const validData = { rating: 3 };
     expect(() => zodSchema.parse(validData)).not.toThrow();

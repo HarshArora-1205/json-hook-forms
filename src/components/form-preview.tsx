@@ -14,7 +14,7 @@ interface FormPreviewProps {
 }
 
 export default function FormPreview({ schema }: FormPreviewProps) {
-	const zodSchema = generateZodSchema(schema);
+	const {zodSchema} = generateZodSchema(schema);
 	const form = useForm({
 		resolver: zodResolver(zodSchema),
 		defaultValues: schema.fields.reduce(

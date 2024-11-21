@@ -28,7 +28,7 @@ describe("Number Field Tests", () => {
 
 		expect(() => isValidSchema(validSchema)).not.toThrow();
 
-		const zodSchema = generateZodSchema(validSchema);
+		const { zodSchema } = generateZodSchema(validSchema);
 
 		// Valid data
 		const validData = { age: 25 };
@@ -63,7 +63,7 @@ describe("Number Field Tests", () => {
 
 		expect(() => isValidSchema(validSchema)).not.toThrow();
 
-		const zodSchema = generateZodSchema(validSchema);
+		const { zodSchema } = generateZodSchema(validSchema);
 
 		// Valid data: number provided
 		const validData = { age: 30 };
@@ -155,7 +155,7 @@ describe("Number Field Tests", () => {
 
 		expect(() => isValidSchema(validSchema)).not.toThrow();
 
-		const zodSchema = generateZodSchema(validSchema);
+		const { zodSchema } = generateZodSchema(validSchema);
 
 		// Valid data: within max limit
 		const validData = { age: 45 };
@@ -186,7 +186,7 @@ describe("Number Field Tests", () => {
 
 		expect(() => isValidSchema(validSchema)).not.toThrow();
 
-		const zodSchema = generateZodSchema(validSchema);
+		const { zodSchema } = generateZodSchema(validSchema);
 
 		// Valid data: above min limit
 		const validData = { age: 20 };

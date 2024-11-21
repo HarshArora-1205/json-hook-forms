@@ -26,7 +26,7 @@ describe("Checkbox-Group Field Tests", () => {
 
     expect(() => isValidSchema(validSchema)).not.toThrow();
 
-    const zodSchema = generateZodSchema(validSchema);
+    const { zodSchema } = generateZodSchema(validSchema);
 
     // Valid data: at least one option selected
     const validData = { interests: ["sports"] };
@@ -58,7 +58,7 @@ describe("Checkbox-Group Field Tests", () => {
 
     expect(() => isValidSchema(validSchema)).not.toThrow();
 
-    const zodSchema = generateZodSchema(validSchema);
+    const { zodSchema } = generateZodSchema(validSchema);
 
     // Valid data: no options selected
     const validData = { interests: [] };
@@ -150,7 +150,7 @@ describe("Checkbox-Group Field Tests", () => {
 
     expect(() => isValidSchema(validSchema)).not.toThrow();
 
-    const zodSchema = generateZodSchema(validSchema);
+    const { zodSchema } = generateZodSchema(validSchema);
 
     // Invalid data: non-array type
     const invalidData = { interests: "sports" }; // Should be an array
@@ -178,7 +178,7 @@ describe("Checkbox-Group Field Tests", () => {
 
     expect(() => isValidSchema(validSchema)).not.toThrow();
 
-    const zodSchema = generateZodSchema(validSchema);
+    const { zodSchema } = generateZodSchema(validSchema);
 
     // Invalid data: values not matching options
     const invalidData = { interests: ["unknown"] }; // `unknown` not in options

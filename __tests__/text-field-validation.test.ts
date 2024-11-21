@@ -21,7 +21,7 @@ describe("Text Field Tests", () => {
 		};
 		expect(() => isValidSchema(validSchema)).not.toThrow();
 
-		const zodSchema = generateZodSchema(validSchema);
+		const { zodSchema } = generateZodSchema(validSchema);
 		const validData = { name: "Alice" }; // Valid data
 		expect(() => zodSchema.parse(validData)).not.toThrow();
 
@@ -48,7 +48,7 @@ describe("Text Field Tests", () => {
 
 		expect(() => isValidSchema(validSchema)).not.toThrow();
 
-		const zodSchema = generateZodSchema(validSchema);
+		const { zodSchema } = generateZodSchema(validSchema);
 		const validData = { name: "" }; // Valid because not required
 		expect(() => zodSchema.parse(validData)).not.toThrow();
 
@@ -77,7 +77,7 @@ describe("Text Field Tests", () => {
 
 		expect(() => isValidSchema(validSchema)).not.toThrow();
 
-		const zodSchema = generateZodSchema(validSchema);
+		const { zodSchema } = generateZodSchema(validSchema);
 		const validData = { name: "John Doe" }; // Valid data
 		expect(() => zodSchema.parse(validData)).not.toThrow();
 
@@ -103,7 +103,7 @@ describe("Text Field Tests", () => {
 
 		expect(() => isValidSchema(validSchema)).not.toThrow();
 
-		const zodSchema = generateZodSchema(validSchema);
+		const { zodSchema } = generateZodSchema(validSchema);
 		const validData = { name: "Hello World" }; // Valid data
 		expect(() => zodSchema.parse(validData)).not.toThrow();
 
@@ -131,7 +131,7 @@ describe("Text Field Tests", () => {
 
 		expect(() => isValidSchema(validSchema)).not.toThrow();
 
-		const zodSchema = generateZodSchema(validSchema);
+		const { zodSchema } = generateZodSchema(validSchema);
 		let validData = { name: "Short Name" }; // Valid data
 		expect(() => zodSchema.parse(validData)).not.toThrow();
 

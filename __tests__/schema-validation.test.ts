@@ -182,7 +182,7 @@ describe("generateZodSchema", () => {
       ],
     };
 
-    const zodSchema = generateZodSchema(schema);
+    const { zodSchema } = generateZodSchema(schema);
 
     // Validate with valid data
     const validData = {
@@ -217,7 +217,7 @@ describe("generateZodSchema", () => {
       ],
     };
 
-    const zodSchema = generateZodSchema(schema);
+    const { zodSchema } = generateZodSchema(schema);
     const validData = {}; // Optional field can be omitted
     expect(() => zodSchema.parse(validData)).not.toThrow();
   });
@@ -236,7 +236,7 @@ describe("generateZodSchema", () => {
       ],
     };
 
-    const zodSchema = generateZodSchema(schema);
+    const { zodSchema } = generateZodSchema(schema);
     const validData = { newsletter: true }; // valid
     expect(() => zodSchema.parse(validData)).not.toThrow();
     
@@ -262,7 +262,7 @@ describe("generateZodSchema", () => {
       ],
     };
 
-    const zodSchema = generateZodSchema(schema);
+    const { zodSchema } = generateZodSchema(schema);
 
     const validData = { age: 30 };
     expect(() => zodSchema.parse(validData)).not.toThrow();

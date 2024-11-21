@@ -48,7 +48,7 @@ export default function CodePreview({
 }
 
 function generateHTMLCode(schema: Schema): string {
-	const zodSchema = generateZodSchema(schema);
+	const {zodSchemaCode} = generateZodSchema(schema);
 
 	const renderField = (field: Field): string => {
 		switch (field.type) {
@@ -164,7 +164,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 const schema = ${JSON.stringify(schema, null, 2)};
 
-const zodSchema = ${zodSchema.toString()};
+const zodSchema = ${zodSchemaCode};
 
 type FormData = z.infer<typeof zodSchema>;
 
@@ -202,7 +202,7 @@ export function DynamicForm() {
 }
 
 function generateShadcnCode(schema: Schema): string {
-	const zodSchema = generateZodSchema(schema);
+	const { zodSchemaCode } = generateZodSchema(schema);
 
 	const renderField = (field: Field): string => {
 		switch (field.type) {
@@ -488,7 +488,7 @@ import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 
-const formSchema = ${zodSchema.toString()}
+const formSchema = ${zodSchemaCode}
 
 export function DynamicForm() {
   const form = useForm<z.infer<typeof formSchema>>({

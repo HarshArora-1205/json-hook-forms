@@ -28,7 +28,7 @@ describe("Radio Field Tests", () => {
 
     expect(() => isValidSchema(validSchema)).not.toThrow();
 
-    const zodSchema = generateZodSchema(validSchema);
+    const { zodSchema } = generateZodSchema(validSchema);
 
     // Valid data: one option selected
     const validData = { industry: "tech" };
@@ -62,7 +62,7 @@ describe("Radio Field Tests", () => {
 
     expect(() => isValidSchema(validSchema)).not.toThrow();
 
-    const zodSchema = generateZodSchema(validSchema);
+    const { zodSchema } = generateZodSchema(validSchema);
 
     // Valid data: one option selected
     const validData = { industry: "finance" };
@@ -156,7 +156,7 @@ describe("Radio Field Tests", () => {
 
     expect(() => isValidSchema(validSchema)).not.toThrow();
 
-    const zodSchema = generateZodSchema(validSchema);
+    const { zodSchema } = generateZodSchema(validSchema);
 
     // Invalid data: selected value not in options
     const invalidData = { industry: "invalid" }; // `invalid` not in options
@@ -186,7 +186,7 @@ describe("Radio Field Tests", () => {
 
     expect(() => isValidSchema(validSchema)).not.toThrow();
 
-    const zodSchema = generateZodSchema(validSchema);
+    const { zodSchema } = generateZodSchema(validSchema);
 
     // Invalid data: non-string value
     const invalidData = { industry: 123 }; // Should be a string
