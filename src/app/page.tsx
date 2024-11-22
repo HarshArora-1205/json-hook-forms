@@ -34,6 +34,7 @@ export default function Home() {
 	const [parsedSchema, setParsedSchema] = useState<Schema | null>(null);
 	const [jsonError, setJsonError] = useState<string | null>(null);
 	const [copied, setCopied] = useState(false);
+	const [jSONCopied, setJSONCopied] = useState(false);
 	const [code, setCode] = useState<string>("");
 	const [codeType, setCodeType] = useState<string>("shadcn");
 	const [activeTab, setActiveTab] = useState("preview");
@@ -63,6 +64,12 @@ export default function Home() {
 		setTimeout(() => setCopied(false), 2000);
 	};
 
+	const handleJSONCopy = () => {
+		navigator.clipboard.writeText(jsonSchema);
+		setJSONCopied(true);
+		setTimeout(() => setJSONCopied(false), 2000);
+	};
+
 	const handleCodeChange = (code: string) => {
 		setCode(code);
 	};
@@ -74,6 +81,20 @@ export default function Home() {
 					JSON HOOK FORMS
 				</h1>
 				<div className="flex gap-4">
+					<Button
+						variant="outline"
+						onClick={handleJSONCopy}
+						disabled={jSONCopied}
+						className="relative group"
+					>
+						{jSONCopied ? (
+							<CheckCircle2 className="h-4 w-4" />
+						) : (
+							<>
+								Copy Input JSON
+							</>
+						)}
+					</Button>
 					<DocsPopover />
 					<ModeToggle />
 				</div>
@@ -124,6 +145,7 @@ export default function Home() {
 									)}
 									<Button
 										variant="outline"
+										disabled={copied}
 										size="icon"
 										onClick={handleCopy}
 										className="relative group"
